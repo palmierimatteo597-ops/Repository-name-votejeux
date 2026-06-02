@@ -442,6 +442,20 @@ export default function VotePage() {
   const [loading, setLoading] = useState(true)
   const [jeuModal, setJeuModal] = useState(null)
   const [showGameplayCards, setShowGameplayCards] = useState(false)
+  // Préchargement de toutes les images dès l'arrivée sur la page
+useEffect(() => {
+  jeux.forEach(jeu => {
+    if (jeu.jaquette_url) {
+      const img = new Image()
+      img.src = jeu.jaquette_url
+    }
+
+    if (jeu.gameplay_url) {
+      const img = new Image()
+      img.src = jeu.gameplay_url
+    }
+  })
+}, [jeux])
 
   const joueurId =
     typeof window !== 'undefined'
