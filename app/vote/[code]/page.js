@@ -193,25 +193,6 @@ function GameModal({
               </div>
             )}
 
-            {/* Support / Émulateur */}
-            {(jeu.support || jeu.emulateur) && (
-              <div className="flex gap-3 text-sm">
-                {jeu.support && (
-                  <div className="bg-gray-800 rounded-xl px-3 py-2 flex-1 text-center">
-                    <p className="text-gray-500 text-xs">Support</p>
-                    <p className="text-white font-medium">{jeu.support}</p>
-                  </div>
-                )}
-
-                {jeu.emulateur && (
-                  <div className="bg-gray-800 rounded-xl px-3 py-2 flex-1 text-center">
-                    <p className="text-gray-500 text-xs">Émulateur</p>
-                    <p className="text-white font-medium">{jeu.emulateur}</p>
-                  </div>
-                )}
-              </div>
-            )}
-
             {/* Bouton gameplay vidéo */}
             <button
               onClick={() => jeu.youtube_id && setVideoOpen(true)}
