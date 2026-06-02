@@ -269,6 +269,7 @@ function GameModal({
 // ─── Carte jeu ────────────────────────────────────────────────────────────────
 function GameCard({
   jeu,
+  showGameplayCards,
   phase,
   monVote1,
   votesJeu1,
@@ -286,18 +287,48 @@ function GameCard({
       ${phase === 'phase1' && monVote1 ? 'ring-2 ring-purple-500' : ''}`}
     >
       <div className="cursor-pointer" onClick={() => onOpenModal(jeu)}>
-        <div className="relative">
-          {jeu.jaquette_url ? (
-            <img
-              src={jeu.jaquette_url}
-              alt={jeu.nom}
-              className="w-full aspect-[3/4] object-cover"
-            />
-          ) : (
-            <div className="w-full aspect-[3/4] bg-gray-800 flex items-center justify-center">
-              <span className="text-4xl">🎮</span>
+        <div className="relative [perspective:1000px]">
+          <div
+            className={`relative w-full aspect-[3/4] transition-transform duration-700 [transform-style:preserve-3d]
+              ${showGameplayCards ? '[transform:rotateY(180deg)]' : ''}
+            `}
+          >
+            {/* Face jaquette */}
+            <div className="absolute inset-0 [backface-visibility:hidden]">
+              {jeu.jaquette_url ? (
+                <img
+                  src={jeu.jaquette_url}
+                  alt={jeu.nom}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-gray-800 flex items-center justify-center">
+                  <span className="text-4xl">🎮</span>
+                </div>
+              )}
             </div>
-          )}
+
+            {/* Face gameplay */}
+            <div className="absolute inset-0 [backface-visibility:hidden] [transform:rotateY(180deg)]">
+              {jeu.gameplay_url ? (
+                <img
+                  src={jeu.gameplay_url}
+                  alt={`${jeu.nom} gameplay`}
+                  className="w-full h-full object-cover"
+                />
+              ) : jeu.jaquette_url ? (
+                <img
+                  src={jeu.jaquette_url}
+                  alt={jeu.nom}
+                  className="w-full h-full object-cover opacity-50"
+                />
+              ) : (
+                <div className="w-full h-full bg-gray-800 flex items-center justify-center">
+                  <span className="text-4xl">🕹️</span>
+                </div>
+              )}
+            </div>
+          </div>
 
           {jeu.youtube_id && (
             <div className="absolute bottom-2 left-2 bg-red-600/90 text-white text-xs px-1.5 py-0.5 rounded-md font-medium">
@@ -410,6 +441,7 @@ export default function VotePage() {
   const [votesRestants, setVotesRestants] = useState(5)
   const [loading, setLoading] = useState(true)
   const [jeuModal, setJeuModal] = useState(null)
+  const [showGameplayCards, setShowGameplayCards] = useState(false)
 
   const joueurId =
     typeof window !== 'undefined'
@@ -711,6 +743,13 @@ export default function VotePage() {
 
   return (
     <main className="min-h-screen bg-gray-950 p-4">
+      <button
+        onClick={() => setShowGameplayCards(prev => !prev)}
+        className="fixed bottom-4 right-4 z-30 bg-purple-600 hover:bg-purple-700 text-white font-bold px-4 py-3 rounded-full shadow-2xl transition active:scale-95"
+      >
+        {showGameplayCards ? '🃏 Voir jaquettes' : '🎮 Voir gameplay'}
+      </button>
+
       <div className="max-w-4xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <div>
@@ -768,6 +807,7 @@ export default function VotePage() {
             <GameCard
               key={jeu.id}
               jeu={jeu}
+              showGameplayCards={showGameplayCards}
               phase={phase}
               monVote1={!!mesVotes1[jeu.id]}
               votesJeu1={votes1[jeu.id] || 0}
