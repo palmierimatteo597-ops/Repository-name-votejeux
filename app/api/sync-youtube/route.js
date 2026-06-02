@@ -33,15 +33,20 @@ export async function GET(request) {
 
     const limit = searchParams.get('limit')
       ? parseInt(searchParams.get('limit'))
-      : 5
+      : null
 
     const dryRun = searchParams.get('dryRun') === 'true'
 
-    const { data: jeux, error } = await supabase
+    let query = supabase
       .from('games')
       .select('id, nom, plateforme, youtube_id')
       .is('youtube_id', null)
-      .limit(limit)
+
+    if (limit) {
+      query = query.limit(limit)
+    }
+
+    const { data: jeux, error } = await query
 
     if (error) throw error
 
