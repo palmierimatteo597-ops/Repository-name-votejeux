@@ -1,4 +1,4 @@
-'use client'
+use client'
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
@@ -52,43 +52,45 @@ export default function JoueurPage() {
   }
 
   if (loading) return (
-    <div className="min-h-screen bg-gray-950 flex items-center justify-center">
+    <div className="gp-bg min-h-screen flex items-center justify-center">
       <p className="text-white">Chargement...</p>
     </div>
   )
 
   return (
-    <main className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-6">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold text-white">🎮 VoteJeux</h1>
-          <p className="text-gray-400 mt-1">Room : <span className="text-purple-400 font-mono text-xl">{code}</span></p>
+    <main className="gp-bg min-h-screen flex items-center justify-center p-5">
+      <div className="gp-shell w-full max-w-md space-y-6">
+        <div className="text-center space-y-3">
+          <div className="mx-auto w-16 h-16 rounded-3xl bg-purple-500/15 border border-purple-400/30 flex items-center justify-center text-3xl shadow-[0_0_40px_rgba(168,85,247,.25)]">🎮</div>
+          <h1 className="gp-logo text-4xl font-black">Game Picker</h1>
+          <p className="text-slate-400">Room : <span className="text-cyan-300 font-mono text-xl font-black">{code}</span></p>
         </div>
 
         {!joined ? (
-          <div className="bg-gray-900 rounded-2xl p-6 space-y-4">
-            <h2 className="text-white font-semibold">Comment tu t'appelles ?</h2>
+          <div className="gp-card rounded-[2rem] p-6 space-y-4">
+            <p className="text-cyan-300 uppercase tracking-[.25em] text-xs font-black">Profil joueur</p>
+            <h2 className="text-white font-black text-2xl">Comment tu t'appelles ?</h2>
             <input
               type="text"
               placeholder="Ton prénom"
               value={nom}
               onChange={e => setNom(e.target.value)}
-              className="w-full bg-gray-800 text-white placeholder-gray-500 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-purple-500"
+              className="gp-input w-full rounded-2xl px-5 py-4 placeholder:text-slate-600"
             />
             <button onClick={rejoindre}
-              className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-xl transition">
-              ✅ Rejoindre la room
+              className="gp-btn-primary w-full font-black py-4 rounded-2xl transition active:scale-[.98]">
+              Rejoindre la room
             </button>
           </div>
         ) : (
-          <div className="bg-gray-900 rounded-2xl p-6 text-center space-y-4">
+          <div className="gp-card rounded-[2rem] p-7 text-center space-y-4">
             <div className="text-5xl">⏳</div>
-            <h2 className="text-white font-semibold text-xl">En attente du maître...</h2>
-            <p className="text-gray-400 text-sm">Le maître du jeu va bientôt lancer la présélection.</p>
+            <h2 className="text-white font-black text-2xl">En attente du maître...</h2>
+            <p className="text-slate-400 text-sm">La présélection va bientôt commencer.</p>
             <div className="flex justify-center gap-1 mt-4">
-              <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce" style={{animationDelay:'0ms'}}></div>
-              <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce" style={{animationDelay:'150ms'}}></div>
-              <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce" style={{animationDelay:'300ms'}}></div>
+              <div className="w-2 h-2 bg-cyan-300 rounded-full animate-bounce" style={{animationDelay:'0ms'}}></div>
+              <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{animationDelay:'150ms'}}></div>
+              <div className="w-2 h-2 bg-pink-400 rounded-full animate-bounce" style={{animationDelay:'300ms'}}></div>
             </div>
           </div>
         )}

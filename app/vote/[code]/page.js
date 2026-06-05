@@ -82,7 +82,7 @@ function GameModal({
         onClick={onClose}
       >
         <div
-          className="relative bg-gray-900 w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl overflow-hidden shadow-2xl max-h-[90vh] flex flex-col"
+          className="relative gp-card w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl overflow-hidden shadow-2xl max-h-[90vh] flex flex-col"
           onClick={e => e.stopPropagation()}
         >
           {/* Header image */}
@@ -100,7 +100,7 @@ function GameModal({
                 className="w-full h-48 object-cover"
               />
             ) : (
-              <div className="w-full h-48 bg-gray-800 flex items-center justify-center">
+              <div className="w-full h-48 bg-slate-950/70 flex items-center justify-center">
                 <span className="text-6xl">🎮</span>
               </div>
             )}
@@ -147,7 +147,7 @@ function GameModal({
                 )}
 
                 {jeu.nombre_joueurs && (
-                  <span className="text-xs bg-gray-700 text-gray-300 px-2.5 py-1 rounded-full">
+                  <span className="text-xs bg-slate-800/80 text-gray-300 px-2.5 py-1 rounded-full">
                     👥 {jeu.nombre_joueurs} joueurs
                   </span>
                 )}
@@ -171,7 +171,7 @@ function GameModal({
                   {jeu.genres.map(g => (
                     <span
                       key={g}
-                      className="text-xs bg-gray-800 text-gray-300 px-2.5 py-1 rounded-full"
+                      className="text-xs bg-slate-950/70 text-gray-300 px-2.5 py-1 rounded-full"
                     >
                       {g}
                     </span>
@@ -201,7 +201,7 @@ function GameModal({
                 ${
                   jeu.youtube_id
                     ? 'bg-red-600 hover:bg-red-700 text-white'
-                    : 'bg-gray-800 text-gray-600 cursor-not-allowed'
+                    : 'bg-slate-950/70 text-gray-600 cursor-not-allowed'
                 }`}
             >
               {jeu.youtube_id ? '▶ Voir le gameplay' : '▶ Gameplay bientôt disponible'}
@@ -209,15 +209,15 @@ function GameModal({
           </div>
 
           {/* Footer vote */}
-          <div className="flex-shrink-0 p-4 border-t border-gray-800 bg-gray-900">
+          <div className="flex-shrink-0 p-4 border-t border-gray-800 gp-card">
             {phase === 'phase1' && (
               <button
                 onClick={() => onToggleVote1(jeu.id)}
                 className={`w-full py-3.5 rounded-xl font-bold text-sm transition
                   ${
                     monVote1
-                      ? 'bg-purple-600 hover:bg-purple-700 text-white'
-                      : 'bg-gray-700 hover:bg-gray-600 text-white'
+                      ? 'gp-btn-primary text-white'
+                      : 'bg-slate-800/80 hover:bg-gray-600 text-white'
                   }`}
               >
                 {monVote1 ? '✅ Sélectionné — retirer' : '👍 Je veux jouer à ça'}
@@ -229,13 +229,13 @@ function GameModal({
                 <button
                   onClick={() => onRetirer2(jeu.id)}
                   disabled={mesVotesJeu2 <= 0}
-                  className="w-12 h-12 bg-gray-700 hover:bg-gray-600 disabled:opacity-30 text-white rounded-full text-xl font-bold transition flex-shrink-0"
+                  className="w-12 h-12 bg-slate-800/80 hover:bg-gray-600 disabled:opacity-30 text-white rounded-full text-xl font-bold transition flex-shrink-0"
                 >
                   −
                 </button>
 
                 <div className="flex-1 text-center">
-                  <p className="text-3xl font-bold text-purple-400">
+                  <p className="text-3xl font-bold text-cyan-300">
                     {mesVotesJeu2}
                   </p>
                   <p className="text-gray-500 text-xs">
@@ -246,7 +246,7 @@ function GameModal({
                 <button
                   onClick={() => onAjouter2(jeu.id)}
                   disabled={votesRestants <= 0}
-                  className="w-12 h-12 bg-purple-600 hover:bg-purple-700 disabled:opacity-30 text-white rounded-full text-xl font-bold transition flex-shrink-0"
+                  className="w-12 h-12 gp-btn-primary disabled:opacity-30 text-white rounded-full text-xl font-bold transition flex-shrink-0"
                 >
                   +
                 </button>
@@ -283,8 +283,8 @@ function GameCard({
 }) {
   return (
     <div
-      className={`bg-gray-900 rounded-2xl overflow-hidden transition-transform hover:scale-[1.02]
-      ${phase === 'phase1' && monVote1 ? 'ring-2 ring-purple-500' : ''}`}
+      className={`gp-card rounded-2xl overflow-hidden transition-transform hover:scale-[1.02]
+      ${phase === 'phase1' && monVote1 ? 'ring-2 ring-cyan-300' : ''}`}
     >
       <div className="cursor-pointer" onClick={() => onOpenModal(jeu)}>
         <div className="relative [perspective:1000px]">
@@ -302,7 +302,7 @@ function GameCard({
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <div className="w-full h-full bg-gray-800 flex items-center justify-center">
+                <div className="w-full h-full bg-slate-950/70 flex items-center justify-center">
                   <span className="text-4xl">🎮</span>
                 </div>
               )}
@@ -323,7 +323,7 @@ function GameCard({
                   className="w-full h-full object-cover opacity-50"
                 />
               ) : (
-                <div className="w-full h-full bg-gray-800 flex items-center justify-center">
+                <div className="w-full h-full bg-slate-950/70 flex items-center justify-center">
                   <span className="text-4xl">🕹️</span>
                 </div>
               )}
@@ -368,7 +368,7 @@ function GameCard({
             )}
 
             {jeu.nombre_joueurs && (
-              <span className="text-xs bg-gray-700 text-gray-300 px-2 py-0.5 rounded-full">
+              <span className="text-xs bg-slate-800/80 text-gray-300 px-2 py-0.5 rounded-full">
                 {jeu.nombre_joueurs}J
               </span>
             )}
@@ -386,8 +386,8 @@ function GameCard({
             className={`w-full py-2 rounded-xl text-xs font-bold transition
               ${
                 monVote1
-                  ? 'bg-purple-600 hover:bg-purple-700 text-white'
-                  : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+                  ? 'gp-btn-primary text-white'
+                  : 'bg-slate-800/80 hover:bg-gray-600 text-gray-300'
               }`}
           >
             {monVote1 ? '✅ Sélectionné' : '👍 Je veux jouer'}
@@ -401,7 +401,7 @@ function GameCard({
                 e.stopPropagation()
                 onRetirer2(jeu.id)
               }}
-              className="w-8 h-8 bg-gray-700 hover:bg-gray-600 text-white rounded-full font-bold transition"
+              className="w-8 h-8 bg-slate-800/80 hover:bg-gray-600 text-white rounded-full font-bold transition"
             >
               −
             </button>
@@ -414,7 +414,7 @@ function GameCard({
                 onAjouter2(jeu.id)
               }}
               disabled={votesRestants <= 0}
-              className="w-8 h-8 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white rounded-full font-bold transition"
+              className="w-8 h-8 gp-btn-primary disabled:opacity-50 text-white rounded-full font-bold transition"
             >
               +
             </button>
@@ -742,7 +742,7 @@ useEffect(() => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-950 flex items-center justify-center">
+      <div className="min-h-screen gp-bg flex items-center justify-center">
         <p className="text-white">Chargement des jeux...</p>
       </div>
     )
@@ -756,15 +756,15 @@ useEffect(() => {
       : jeux
 
   return (
-    <main className="min-h-screen bg-gray-950 p-4">
+    <main className="min-h-screen gp-bg p-4">
       <button
         onClick={() => setShowGameplayCards(prev => !prev)}
-        className="fixed bottom-4 right-4 z-30 bg-purple-600 hover:bg-purple-700 text-white font-bold px-4 py-3 rounded-full shadow-2xl transition active:scale-95"
+        className="fixed bottom-4 right-4 z-30 gp-btn-primary text-white font-bold px-4 py-3 rounded-full shadow-2xl transition active:scale-95"
       >
         {showGameplayCards ? '🃏 Voir jaquettes' : '🎮 Voir gameplay'}
       </button>
 
-      <div className="max-w-4xl mx-auto">
+      <div className="gp-shell max-w-5xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <div>
             <h1 className="text-2xl font-bold text-white">
@@ -773,7 +773,7 @@ useEffect(() => {
 
             <p className="text-gray-400 text-sm">
               Room :{' '}
-              <span className="text-purple-400 font-mono">
+              <span className="text-cyan-300 font-mono">
                 {code}
               </span>
             </p>
@@ -784,9 +784,9 @@ useEffect(() => {
           </div>
 
           {phase === 'phase2' && (
-            <div className="bg-gray-900 rounded-xl px-4 py-2 text-center">
+            <div className="gp-card rounded-xl px-4 py-2 text-center">
               <p className="text-gray-400 text-xs">Votes restants</p>
-              <p className="text-2xl font-bold text-purple-400">
+              <p className="text-2xl font-bold text-cyan-300">
                 {votesRestants}
               </p>
             </div>

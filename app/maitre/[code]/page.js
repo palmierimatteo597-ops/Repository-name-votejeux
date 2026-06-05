@@ -107,7 +107,7 @@ export default function MaitrePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-950 flex items-center justify-center">
+      <div className="min-h-screen gp-bg flex items-center justify-center">
         <p className="text-white">Chargement...</p>
       </div>
     )
@@ -118,24 +118,24 @@ export default function MaitrePage() {
     : ''
 
   return (
-    <main className="min-h-screen bg-gray-950 p-4">
-      <div className="max-w-lg mx-auto space-y-6">
+    <main className="min-h-screen gp-bg p-4">
+      <div className="gp-shell max-w-2xl mx-auto space-y-7">
         <div className="text-center">
           <h1 className="text-3xl font-bold text-white">🎮 Maître du jeu</h1>
           <p className="text-gray-400 mt-1">
-            Room : <span className="text-purple-400 font-mono text-xl">{code}</span>
+            Room : <span className="text-cyan-300 font-mono text-xl">{code}</span>
           </p>
         </div>
 
-        <div className="bg-gray-900 rounded-2xl p-6 flex flex-col items-center space-y-4">
+        <div className="gp-card rounded-[2rem] p-6 flex flex-col items-center space-y-4">
           <p className="text-white font-semibold">QR Code pour rejoindre</p>
-          <QRCode value={roomUrl} size={180} bgColor="#111827" fgColor="#ffffff" />
+          <QRCode value={roomUrl} size={180} bgColor="#070b18" fgColor="#ffffff" />
           <p className="text-gray-400 text-sm text-center">
-            Ou partage le code : <span className="text-purple-400 font-mono font-bold">{code}</span>
+            Ou partage le code : <span className="text-cyan-300 font-mono font-bold">{code}</span>
           </p>
         </div>
 
-        <div className="bg-gray-900 rounded-2xl p-6 space-y-4">
+        <div className="gp-card rounded-[2rem] p-6 space-y-4">
           <div className="space-y-3">
             <h2 className="text-white font-semibold">Filtres</h2>
 
@@ -143,7 +143,7 @@ export default function MaitrePage() {
               <button
                 onClick={syncJeux}
                 disabled={syncing || syncingVideos}
-                className="text-sm bg-gray-700 hover:bg-gray-600 disabled:opacity-50 text-white px-3 py-2 rounded-lg transition"
+                className="text-sm gp-btn-secondary disabled:opacity-50 text-white px-3 py-3 rounded-xl transition"
               >
                 {syncing ? '⏳ Sync...' : '🔄 Sync jeux'}
               </button>
@@ -151,7 +151,7 @@ export default function MaitrePage() {
               <button
                 onClick={syncVideos}
                 disabled={syncing || syncingVideos}
-                className="text-sm bg-red-700 hover:bg-red-600 disabled:opacity-50 text-white px-3 py-2 rounded-lg transition"
+                className="text-sm bg-pink-600/90 hover:bg-pink-500 disabled:opacity-50 text-white px-3 py-3 rounded-xl transition"
               >
                 {syncingVideos ? '⏳ Vidéos...' : '🎬 Sync vidéos'}
               </button>
@@ -161,7 +161,7 @@ export default function MaitrePage() {
           <select
             value={filtres.plateforme}
             onChange={e => setFiltres({ ...filtres, plateforme: e.target.value })}
-            className="w-full bg-gray-800 text-white rounded-xl px-4 py-3 outline-none"
+            className="w-full gp-select w-full rounded-2xl px-4 py-3"
           >
             <option value="">Toutes les plateformes</option>
             {plateformes.map(p => (
@@ -172,7 +172,7 @@ export default function MaitrePage() {
           <select
             value={filtres.nombre_joueurs}
             onChange={e => setFiltres({ ...filtres, nombre_joueurs: e.target.value })}
-            className="w-full bg-gray-800 text-white rounded-xl px-4 py-3 outline-none"
+            className="w-full gp-select w-full rounded-2xl px-4 py-3"
           >
             <option value="">Nombre de joueurs</option>
             {[2, 3, 4, 5, 6, 7, 8].map(n => (
@@ -183,7 +183,7 @@ export default function MaitrePage() {
           <select
             value={filtres.session}
             onChange={e => setFiltres({ ...filtres, session: e.target.value })}
-            className="w-full bg-gray-800 text-white rounded-xl px-4 py-3 outline-none"
+            className="w-full gp-select w-full rounded-2xl px-4 py-3"
           >
             <option value="">Toutes les sessions</option>
             <option value="Court">Court</option>
@@ -194,7 +194,7 @@ export default function MaitrePage() {
           <select
             value={filtres.genre}
             onChange={e => setFiltres({ ...filtres, genre: e.target.value })}
-            className="w-full bg-gray-800 text-white rounded-xl px-4 py-3 outline-none"
+            className="w-full gp-select w-full rounded-2xl px-4 py-3"
           >
             <option value="">Tous les genres</option>
             {genres.map(g => (
@@ -204,7 +204,7 @@ export default function MaitrePage() {
 
           <button
             onClick={appliquerFiltres}
-            className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 rounded-xl transition"
+            className="w-full gp-btn-primary text-white font-black py-4 rounded-2xl transition active:scale-[.98]"
           >
             🚀 Lancer la présélection
           </button>
