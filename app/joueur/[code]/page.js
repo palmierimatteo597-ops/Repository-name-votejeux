@@ -12,9 +12,8 @@ export default function JoueurPage() {
   const [joined, setJoined] = useState(false)
 
   useEffect(() => {
-    // Vérifie si ce joueur a déjà un ID stable pour cette room.
-    // S'il en avait un (rechargement de page, retour en arrière...), on le conserve
-    // plutôt que d'en générer un nouveau — c'est ce qui causait le bug de vote annulé.
+    // Restaure le nom si le joueur avait déjà rejoint CETTE room spécifique
+    // mais ne passe en "joined" que si l'ID ET le nom existent pour ce code précis
     const existingId = localStorage.getItem(`joueur_${code}`)
     const existingNom = localStorage.getItem(`joueur_nom_${code}`)
     if (existingId && existingNom) {
@@ -57,8 +56,7 @@ export default function JoueurPage() {
 
   function rejoindre() {
     if (!nom.trim()) return
-
-    // On ne génère un nouvel ID que s'il n'en existe pas déjà un pour cette room
+    // Génère un nouvel ID seulement s'il n'en existe pas déjà un pour cette room
     let joueurId = localStorage.getItem(`joueur_${code}`)
     if (!joueurId) {
       joueurId = Math.random().toString(36).substring(2)
@@ -92,6 +90,7 @@ export default function JoueurPage() {
               placeholder="Ton prénom"
               value={nom}
               onChange={e => setNom(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && rejoindre()}
               className="gp-input w-full rounded-2xl px-5 py-4 placeholder:text-slate-600"
             />
             <button onClick={rejoindre}
