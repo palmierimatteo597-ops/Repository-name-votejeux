@@ -6,6 +6,50 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_KEY
 )
 
+// Télécharge une image depuis une URL et l'uploade dans Supabase Storage.
+// Retourne l'URL publique Supabase, ou null en cas d'échec.
+async function uploadImage(url, storagePath) {
+  try {
+    const res = await fetch(url)
+    if (!res.ok) return null
+
+    const buffer = await res.arrayBuffer()
+    const contentType = res.headers.get('content-type') || 'image/jpeg'
+
+    const { error } = await supabase.storage
+      .from('games')
+      .upload(storagePath, buffer, {
+        contentType,
+        upsert: true // écrase si déjà présent
+      })
+
+    if (error) {
+      console.error(`Storage upload error (${storagePath}):`, error.message)
+      return null
+    }
+
+    const { data } = supabase.storage
+      .from('games')
+      .getPublicUrl(storagePath)
+
+    return data.publicUrl
+  } catch (err) {
+    console.error(`uploadImage failed (${storagePath}):`, err.message)
+    return null
+  }
+}
+
+// Extrait une extension propre depuis une URL (jpg, png, webp...)
+function getExtension(url) {
+  try {
+    const pathname = new URL(url).pathname
+    const ext = pathname.split('.').pop().split('?')[0].toLowerCase()
+    return ['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(ext) ? ext : 'jpg'
+  } catch {
+    return 'jpg'
+  }
+}
+
 async function sync() {
   const games = await fetchGamesFromAirtable()
 
@@ -13,53 +57,84 @@ async function sync() {
     throw new Error('Airtable a retourné 0 jeux — sync annulée pour éviter de tout effacer.')
   }
 
-  // 1. Récupère les IDs actuellement dans Supabase
+  // Récupère les données existantes dans Supabase pour comparer
   const { data: existants } = await supabase
     .from('games')
-    .select('id')
+    .select('id, youtube_id, jaquette_url, gameplay_url')
 
-  const idsSupabase = new Set((existants || []).map(g => g.id))
+  const existantsMap = {}
+  for (const g of existants || []) {
+    existantsMap[g.id] = g
+  }
+
+  // Supprime les zombies
+  const idsSupabase = new Set(Object.keys(existantsMap))
   const idsAirtable = new Set(games.map(g => g.id))
-
-  // 2. Supprime les zombies (dans Supabase mais plus dans Airtable)
   const idsASupprimer = [...idsSupabase].filter(id => !idsAirtable.has(id))
 
   if (idsASupprimer.length > 0) {
-    const { error: deleteError } = await supabase
-      .from('games')
-      .delete()
-      .in('id', idsASupprimer)
-
-    if (deleteError) throw deleteError
+    await supabase.from('games').delete().in('id', idsASupprimer)
   }
 
-  // 3. Upsert des jeux Airtable.
-  //    On utilise ignoreDuplicates: false (comportement par défaut) pour bien mettre à jour.
-  //    youtube_id est absent de l'objet games (voir airtable.js) donc Supabase ne le touche pas
-  //    uniquement si on fait un INSERT ... ON CONFLICT DO UPDATE avec les colonnes explicites.
-  //    Avec le client Supabase JS, upsert écrase toutes les colonnes présentes dans l'objet.
-  //    → On récupère les youtube_id existants pour les réinjecter et ne pas les perdre.
-  const { data: existantsYoutube } = await supabase
-    .from('games')
-    .select('id, youtube_id')
+  // Traite chaque jeu : upload images si nécessaire
+  let imagesUploaded = 0
+  const gamesFinaux = []
 
-  const youtubeMap = {}
-  for (const g of existantsYoutube || []) {
-    if (g.youtube_id) youtubeMap[g.id] = g.youtube_id
+  for (const game of games) {
+    const existant = existantsMap[game.id]
+    const existantUrl = existant?.jaquette_url || ''
+    const existantGameplayUrl = existant?.gameplay_url || ''
+
+    // Jaquette : on uploade seulement si l'URL Supabase n'existe pas encore
+    // (les URLs Supabase Storage contiennent le nom du projet, les URLs Airtable contiennent "airtable")
+    let jaquetteUrl = game.jaquette_url
+    if (game.jaquette_url && !existantUrl.includes('supabase')) {
+      const ext = getExtension(game.jaquette_url)
+      const path = `jaquettes/${game.id}.${ext}`
+      const uploaded = await uploadImage(game.jaquette_url, path)
+      if (uploaded) {
+        jaquetteUrl = uploaded
+        imagesUploaded++
+      }
+    } else if (existantUrl.includes('supabase')) {
+      // Garde l'URL Supabase existante
+      jaquetteUrl = existantUrl
+    }
+
+    // Gameplay : même logique
+    let gameplayUrl = game.gameplay_url
+    if (game.gameplay_url && !existantGameplayUrl.includes('supabase')) {
+      const ext = getExtension(game.gameplay_url)
+      const path = `gameplay/${game.id}.${ext}`
+      const uploaded = await uploadImage(game.gameplay_url, path)
+      if (uploaded) {
+        gameplayUrl = uploaded
+        imagesUploaded++
+      }
+    } else if (existantGameplayUrl.includes('supabase')) {
+      gameplayUrl = existantGameplayUrl
+    }
+
+    gamesFinaux.push({
+      ...game,
+      jaquette_url: jaquetteUrl,
+      gameplay_url: gameplayUrl,
+      youtube_id: existant?.youtube_id || null
+    })
   }
 
-  const gamesAvecYoutube = games.map(g => ({
-    ...g,
-    youtube_id: youtubeMap[g.id] || null
-  }))
-
+  // Upsert final
   const { error } = await supabase
     .from('games')
-    .upsert(gamesAvecYoutube, { onConflict: 'id' })
+    .upsert(gamesFinaux, { onConflict: 'id' })
 
   if (error) throw error
 
-  return { count: games.length, deleted: idsASupprimer.length, deletedIds: idsASupprimer }
+  return {
+    count: games.length,
+    deleted: idsASupprimer.length,
+    imagesUploaded
+  }
 }
 
 export async function POST() {
