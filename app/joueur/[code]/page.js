@@ -12,7 +12,18 @@ export default function JoueurPage() {
   const [joined, setJoined] = useState(false)
 
   useEffect(() => {
+    // Vérifie si ce joueur a déjà un ID stable pour cette room.
+    // S'il en avait un (rechargement de page, retour en arrière...), on le conserve
+    // plutôt que d'en générer un nouveau — c'est ce qui causait le bug de vote annulé.
+    const existingId = localStorage.getItem(`joueur_${code}`)
+    const existingNom = localStorage.getItem(`joueur_nom_${code}`)
+    if (existingId && existingNom) {
+      setNom(existingNom)
+      setJoined(true)
+    }
+
     chargerRoom()
+
     const channel = supabase
       .channel(`room-${code}`)
       .on('postgres_changes', {
@@ -25,6 +36,7 @@ export default function JoueurPage() {
         }
       })
       .subscribe()
+
     return () => supabase.removeChannel(channel)
   }, [])
 
@@ -45,8 +57,13 @@ export default function JoueurPage() {
 
   function rejoindre() {
     if (!nom.trim()) return
-    const joueurId = Math.random().toString(36).substring(2)
-    localStorage.setItem(`joueur_${code}`, joueurId)
+
+    // On ne génère un nouvel ID que s'il n'en existe pas déjà un pour cette room
+    let joueurId = localStorage.getItem(`joueur_${code}`)
+    if (!joueurId) {
+      joueurId = Math.random().toString(36).substring(2)
+      localStorage.setItem(`joueur_${code}`, joueurId)
+    }
     localStorage.setItem(`joueur_nom_${code}`, nom)
     setJoined(true)
   }
