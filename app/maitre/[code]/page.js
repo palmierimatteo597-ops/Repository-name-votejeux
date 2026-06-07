@@ -54,17 +54,12 @@ export default function MaitrePage() {
 
   async function syncJeux() {
     setSyncing(true)
-
     try {
       const res = await fetch('/api/sync', { method: 'POST' })
       const data = await res.json()
-
-      if (!data.success) {
-        throw new Error(data.error || 'Erreur sync jeux')
-      }
-
+      if (!data.success) throw new Error(data.error || 'Erreur sync jeux')
       await chargerFiltres()
-      alert(`Jeux synchronisés ! (${data.count} jeux)`)
+      alert(`Jeux synchronisés ! (${data.count} jeux, ${data.deleted} supprimés)`)
     } catch (err) {
       alert(`Erreur sync jeux : ${err.message}`)
     } finally {
@@ -74,21 +69,11 @@ export default function MaitrePage() {
 
   async function syncVideos() {
     setSyncingVideos(true)
-
     try {
       const res = await fetch('/api/sync-youtube')
       const data = await res.json()
-
-      if (!data.success) {
-        throw new Error(data.error || 'Erreur sync vidéos')
-      }
-
-      alert(
-        `Vidéos synchronisées !\n` +
-        `Jeux traités : ${data.total}\n` +
-        `Vidéos trouvées : ${data.updated}\n` +
-        `Échecs : ${data.failed}`
-      )
+      if (!data.success) throw new Error(data.error || 'Erreur sync vidéos')
+      alert(`Vidéos synchronisées !\nJeux traités : ${data.total}\nVidéos trouvées : ${data.updated}\nÉchecs : ${data.failed}`)
     } catch (err) {
       alert(`Erreur sync vidéos : ${err.message}`)
     } finally {
@@ -161,7 +146,7 @@ export default function MaitrePage() {
           <select
             value={filtres.plateforme}
             onChange={e => setFiltres({ ...filtres, plateforme: e.target.value })}
-            className="w-full gp-select w-full rounded-2xl px-4 py-3"
+            className="w-full gp-select rounded-2xl px-4 py-3"
           >
             <option value="">Toutes les plateformes</option>
             {plateformes.map(p => (
@@ -172,7 +157,7 @@ export default function MaitrePage() {
           <select
             value={filtres.nombre_joueurs}
             onChange={e => setFiltres({ ...filtres, nombre_joueurs: e.target.value })}
-            className="w-full gp-select w-full rounded-2xl px-4 py-3"
+            className="w-full gp-select rounded-2xl px-4 py-3"
           >
             <option value="">Nombre de joueurs</option>
             {[2, 3, 4, 5, 6, 7, 8].map(n => (
@@ -183,18 +168,18 @@ export default function MaitrePage() {
           <select
             value={filtres.session}
             onChange={e => setFiltres({ ...filtres, session: e.target.value })}
-            className="w-full gp-select w-full rounded-2xl px-4 py-3"
+            className="w-full gp-select rounded-2xl px-4 py-3"
           >
-            <option value="">Toutes les sessions</option>
-            <option value="Court">Court</option>
-            <option value="Moyen">Moyen</option>
-            <option value="Long">Long</option>
+            <option value="">Toutes les durées</option>
+            <option value="Court">⚡ Court uniquement</option>
+            <option value="Moyen">⚡ Court + ⏱ Moyen</option>
+            <option value="Long">Toutes les durées (Court + Moyen + Long)</option>
           </select>
 
           <select
             value={filtres.genre}
             onChange={e => setFiltres({ ...filtres, genre: e.target.value })}
-            className="w-full gp-select w-full rounded-2xl px-4 py-3"
+            className="w-full gp-select rounded-2xl px-4 py-3"
           >
             <option value="">Tous les genres</option>
             {genres.map(g => (

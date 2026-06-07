@@ -40,7 +40,7 @@ function LazyImage({ src, alt, className }) {
     if (!ref.current) return
     const observer = new IntersectionObserver(
       ([entry]) => { if (entry.isIntersecting) { setInView(true); observer.disconnect() } },
-      { rootMargin: '200px' } // commence à charger 200px avant d'entrer dans l'écran
+      { rootMargin: '200px' }
     )
     observer.observe(ref.current)
     return () => observer.disconnect()
@@ -48,7 +48,6 @@ function LazyImage({ src, alt, className }) {
 
   return (
     <div ref={ref} className={`relative ${className}`}>
-      {/* Skeleton animé pendant le chargement */}
       {(!loaded || !inView) && (
         <div className="absolute inset-0 bg-white/5 animate-pulse" />
       )}
@@ -186,7 +185,6 @@ function GameCard({ jeu, showGameplayCards, phase, monVote1, votesJeu1, mesVotes
     <div className={`gp-card rounded-2xl overflow-hidden transition-transform hover:scale-[1.02] ${phase === 'phase1' && monVote1 ? 'ring-2 ring-cyan-300' : ''}`}>
       <div className="cursor-pointer" onClick={() => onOpenModal(jeu)}>
         <div className="relative aspect-[3/4]">
-          {/* On affiche une seule image à la fois selon le mode, avec lazy loading */}
           {!showGameplayCards ? (
             jaquette
               ? <LazyImage src={jaquette} alt={jeu.nom} className="absolute inset-0 w-full h-full" />
@@ -292,9 +290,21 @@ export default function VotePage() {
 
     const filtres = roomData?.filtres || {}
     let query = supabase.from('games').select('*')
+
     if (filtres.plateforme) query = query.eq('plateforme', filtres.plateforme)
     if (filtres.nombre_joueurs) query = query.gte('nombre_joueurs', parseInt(filtres.nombre_joueurs))
-    if (filtres.session) query = query.eq('session', filtres.session)
+
+    // Filtre session inclusif : Court = court seul, Moyen = court+moyen, Long = tout
+    if (filtres.session) {
+      if (filtres.session === 'Moyen') {
+        query = query.in('session', ['Court', 'Moyen'])
+      } else if (filtres.session === 'Long') {
+        query = query.in('session', ['Court', 'Moyen', 'Long'])
+      } else {
+        query = query.eq('session', filtres.session)
+      }
+    }
+
     if (filtres.genre) query = query.contains('genres', [filtres.genre])
 
     const { data: jeuxData } = await query
