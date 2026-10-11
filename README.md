@@ -1,5 +1,11 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
+## Lecture périodique Supabase
+
+Le workflow GitHub Actions et sa configuration sont décrits dans
+[le guide Supabase keepalive](docs/supabase-keepalive.md) : secrets requis,
+test manuel et limites de la prévention de mise en pause.
+
 ## Getting Started
 
 First, run the development server:

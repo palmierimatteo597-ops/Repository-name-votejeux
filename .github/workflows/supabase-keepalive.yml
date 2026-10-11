@@ -1,0 +1,77 @@
+name: Supabase keepalive
+
+on:
+  schedule:
+    # UTC; avoid the busiest minute at the start of each hour.
+    - cron: '17 */6 * * *'
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  read-games:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Read one game through the public REST API
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
+        shell: python
+        run: |
+          import json
+          import os
+          import re
+          import sys
+          import urllib.error
+          import urllib.request
+
+          def fail(message):
+              print(f"::error::{message}", flush=True)
+              sys.exit(1)
+
+          url = os.environ.get("SUPABASE_URL", "").strip().rstrip("/")
+          key = os.environ.get("SUPABASE_PUBLISHABLE_KEY", "").strip()
+          if not re.fullmatch(r"https://[a-z0-9]+\.supabase\.co", url):
+              fail("SUPABASE_URL must be the HTTPS project URL, without /rest/v1.")
+          if not re.fullmatch(r"sb_publishable_[A-Za-z0-9_-]+", key):
+              fail("SUPABASE_PUBLISHABLE_KEY must contain a public sb_publishable_ key.")
+
+          # Never forward the API key to a redirect destination.
+          class NoRedirect(urllib.request.HTTPRedirectHandler):
+              def redirect_request(self, req, fp, code, msg, headers, newurl):
+                  return None
+
+          request = urllib.request.Request(
+              f"{url}/rest/v1/games?select=id&limit=1",
+              headers={
+                  "apikey": key,
+                  "Accept": "application/json",
+                  "Accept-Profile": "public",
+                  "Cache-Control": "no-cache",
+              },
+              method="GET",
+          )
+          try:
+              with urllib.request.build_opener(NoRedirect()).open(request, timeout=30) as response:
+                  if response.status != 200:
+                      fail(f"Unexpected HTTP status: {response.status}; expected 200.")
+                  if response.headers.get_content_type() != "application/json":
+                      fail("Expected a JSON response from the Supabase REST API.")
+                  rows = json.load(response)
+          except urllib.error.HTTPError as error:
+              if error.code in (401, 403):
+                  fail(f"HTTP {error.code}: check the public key and existing SELECT/RLS permissions.")
+              fail(f"HTTP {error.code}: Supabase read failed; check project status, table and column.")
+          except (urllib.error.URLError, TimeoutError, OSError):
+              fail("Supabase connection failed or timed out.")
+          except (ValueError, UnicodeError):
+              fail("Supabase returned invalid JSON.")
+
+          if not isinstance(rows, list) or len(rows) > 1 or any(
+              not isinstance(row, dict) or "id" not in row for row in rows
+          ):
+              fail("Unexpected response: expected a JSON array containing at most one game id.")
+          if not rows:
+              print("::warning::Read succeeded but returned no visible rows: table empty or filtered by RLS.")
+          print(f"Supabase database read succeeded (HTTP 200, {len(rows)} visible row(s)).")
